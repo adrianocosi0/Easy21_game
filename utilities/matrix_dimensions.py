@@ -17,21 +17,6 @@ p_s[10:]=0.1*1/3
 
 initial_guess_Q=np.zeros((10,21,2))
 
-dataframe_vector=pd.DataFrame()
-ind_range=[range(0,10,3), range(4,13,3)]
-cols_range=[range(0,16,5),range(6,22,5)]
-feat_index=[]
-feat_cols=[]
-for ind,z in enumerate(zip(*ind_range)):
-    i,k=z
-    feat_index += list(np.arange(i,k))
-for ind,z in enumerate(zip(*cols_range)):
-    n,m=z
-    feat_cols += list(np.arange(n,m))
-iterables = [feat_index, ['hit','stick']]
-iterables_ind=pd.MultiIndex.from_product(iterables)
-initial_feature_vector = pd.DataFrame(index=iterables_ind,columns=feat_cols).sort_index()
-
 
 useful_variables = {'rew_matrix':rew_matrix,'possible_events':possible_events,
                     'p_s':p_s,'initial_guess_Q':initial_guess_Q

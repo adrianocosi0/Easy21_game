@@ -34,28 +34,43 @@ def plot_Q(Q_inp,title='Surface_plot.png'):
 def plot_MSE_lambda(fun,lambs,Q_true,runs,N_0_s,**kwargs):
     '''Args should be 1) function, 2) set of lambdas, 3) the true Q 4) and a list of runs with the number of episodes.
     kwargs are extra arguments for f'''
-    colors = plt.cm.rainbow(np.linspace(0,1,len(runs))) if len(N_0_s) == 0 else plt.cm.rainbow(np.linspace(0,1,len(N_0_s)))
     fig,ax = plt.subplots()
-    for i,run in enumerate(runs):
-        for j,N0 in enumerate(N_0_s):
+    if N_0_s:
+        colors = plt.cm.rainbow(np.linspace(0,1,len(runs))) if len(N_0_s) == 0 else plt.cm.rainbow(np.linspace(0,1,len(N_0_s)))
+        for i,run in enumerate(runs):
+            for j,N0 in enumerate(N_0_s):
+                MSE_s=[]
+                for lambd in lambs:
+                    print('Running with {:.2f} lambda and {} N0 over {}'.format(lambd,N0,run))
+                    Q_l=fun(lamb=lambd, loops=run, **kwargs)
+                    MSE_s+=[np.sum(np.square(Q_l-Q_true))/Q_true.size]
+                color = i if len(N_0_s) == 0 else j
+                plt.plot(lambs,MSE_s,
+                         label=str(N0)+'N0'+' '+str(run)+' '+'episodes',
+                         color=colors[color])
+            handles, labels = ax.get_legend_handles_labels()
+            plt.legend(labels)
+        if len(N_0_s) > 0:
+            plt.title('MSE over runs of {} on N_0 of {}'.format(','.join([str(x) for x in runs]),
+                                                                ','.join([str(x) for x in N_0_s])))
+            fig.savefig('plots/MSE_against_lambda_{}_multiple_N0s.png'.format(fun.__name__))
+            return fig
+        plt.title('MSE over runs of {}'.format(','.join([str(x) for x in runs])))
+        fig.savefig('plots/MSE_against_lambda_{}.png'.format(fun.__name__))
+    else:
+        colors = plt.cm.rainbow(np.linspace(0,1,len(runs)))
+        for i,run in enumerate(runs):
             MSE_s=[]
             for lambd in lambs:
-                print('Running with {:.2f} lambda and {} N0 over {}'.format(lambd,N0,run))
                 Q_l=fun(lamb=lambd, loops=run, **kwargs)
                 MSE_s+=[np.sum(np.square(Q_l-Q_true))/Q_true.size]
-            color = i if len(N_0_s) == 0 else j
             plt.plot(lambs,MSE_s,
-                     label=str(N0)+'N0'+' '+str(run)+' '+'episodes',
-                     color=colors[color])
+                     label=str(run)+' '+'episodes',
+                     color=colors[i])
         handles, labels = ax.get_legend_handles_labels()
         plt.legend(labels)
-    if len(N_0_s) > 0:
-        plt.title('MSE over runs of {} on N_0 of {}'.format(','.join([str(x) for x in runs]),
-                                                            ','.join([str(x) for x in N_0_s])))
-        fig.savefig('plots/MSE_against_lambda_{}_multiple_N0s.png'.format(fun.__name__))
-        return fig
-    plt.title('MSE over runs of {}'.format(','.join([str(x) for x in runs])))
-    fig.savefig('plots/MSE_against_lambda_{}.png'.format(fun.__name__))
+        plt.title('MSE over runs of {}'.format(','.join([str(x) for x in runs])))
+        fig.savefig('plots/MSE_against_lambda_{}.png'.format(fun.__name__))
     return fig
 
 def plot_MSE_episodes(f,n_episodes,lambs,**kwargs):
@@ -67,7 +82,7 @@ def plot_MSE_episodes(f,n_episodes,lambs,**kwargs):
     for i,la in enumerate(lambs):
         print('Plotting MSE against ran of episodes for lambda'+' '+format(la,'.2f'))
         Q_i, MSE_s = f(lamb=la,loops=n_episodes,**kwargs)
-        plt.plot(range(1,n_episodes+1),MSE_s,color=colors[i],label=format(la,'.2f')+' '+'lambda',alpha=0.5)
+        plt.plot(np.arange(1,n_episodes+1,50),MSE_s,color=colors[i],label=format(la,'.2f')+' '+'lambda',alpha=0.5)
     handles, labels = ax.get_legend_handles_labels()
     plt.legend(labels)
     plt.title('Plot of MSE over 40000 episodes')

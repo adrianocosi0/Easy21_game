@@ -46,7 +46,7 @@ def temporal_difference_SARSA_LAMBDA(initial_guess,
 
             k+=1
 
-            if record:
+            if record and k%50==0:
                 MSE_s += [np.sum(np.square(Q_i-Q_true))/Q_true.size]
             continue
 

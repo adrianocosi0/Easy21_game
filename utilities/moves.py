@@ -2,6 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.getcwd()))
 from utilities.matrix_dimensions import useful_variables
+from utilities.create_feature_vector import *
 import numpy as np
 from operator import add,sub
 
@@ -41,6 +42,18 @@ def pick_an_action(Q_inp,state,e):
     choice_new = np.random.choice(['max','random'],1,p=[1-e,e])[0]
     if choice_new == 'max':
         action_next = np.argmax(Q_inp[state[0],state[1]])
+    else:
+        action_next = np.random.randint(0,2)
+    return action_next
+
+def pick_an_action_approximate_function(param_vector, state, e):
+    choice_new = np.random.choice(['max','random'],1,p=[1-e,e])[0]
+    if choice_new == 'max':
+        feat_vect_hit = create_feature_vector(state,0)
+        Q_hit = param_vector @ feat_vect_hit
+        feat_vect_stick = create_feature_vector(state,1)
+        Q_stick = param_vector @ feat_vect_stick
+        action_next = np.argmax([Q_hit,Q_stick])
     else:
         action_next = np.random.randint(0,2)
     return action_next
