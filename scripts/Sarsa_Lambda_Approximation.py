@@ -8,6 +8,7 @@ from utilities.create_feature_vector import *
 from utilities.special_functions import inv0
 from utilities.plot_surface_decision_bound import plot_Q, plot_MSE_lambda, plot_MSE_episodes
 from utilities.create_feature_vector import *
+from utilities.plot_surface_decision_bound import plot_Q
 import pickle as pkl
 
 def temporal_difference_SARSA_LAMBDA_approximation(initial_guess=np.zeros(36),
@@ -87,11 +88,13 @@ if __name__=='__main__':
         sys.exit('Run Monte Carlo script before to save true Q')
     with open(os.path.join(FINAL_DATA_DIR,'Q_true.pkl'),'rb') as f:
         Q_true=pkl.load(f)
-    # fig_1 = plot_MSE_lambda(temporal_difference_SARSA_LAMBDA_approximation,
-    #                         np.arange(0,1.1,0.1), Q_true,
-    #                         list(np.arange(1000,6000,2000)),
-    #                         None)
-
+    fig_1 = plot_MSE_lambda(temporal_difference_SARSA_LAMBDA_approximation,
+                            np.arange(0,1.1,0.1), Q_true,
+                            list(np.arange(1000,6000,2000)),
+                            None)
+    estimated_Q = temporal_difference_SARSA_LAMBDA_approximation(initial_guess=np.zeros(36),
+                                        lamb=0.67, loops=5000, N0=100, record=False)
+    fig = plot_Q(estimated_Q, title='Surface_plot_approximation.png')
     fig_2 = plot_MSE_episodes(temporal_difference_SARSA_LAMBDA_approximation,
                               10000,list(np.linspace(0,1,4)),record=True,
                               initial_guess=np.zeros(36))
